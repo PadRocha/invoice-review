@@ -1,4 +1,5 @@
 import { assertEquals } from "@std/assert";
+import { buildVersionMessage } from "@cli";
 import { reviewInvoice } from "@comparison";
 import { buildInvoiceRow, buildSystemRow } from "@models";
 import { calculatePercentageVariation } from "@utils/percentage.ts";
@@ -97,3 +98,59 @@ Deno.test("reviewInvoice oculta diferencias en (-1, 0] con sensitivity -1", () =
   assertEquals(report.missing_keys, ["G"]);
   assertEquals(report.multiple_matches[0].key, "H");
 });
+
+Deno.test("main.ts imprime la versión con --version sin ejecutar la revisión", async () => {
+  const result = await runMainWithArgs([
+    "--version",
+    "-i",
+    "./factura-inexistente.xls",
+    "-s",
+    "./sistema-inexistente.xlsx",
+  ]);
+
+  assertEquals(result.code, 0);
+  assertEquals(result.stdout, buildVersionMessage());
+  assertEquals(result.stderr, "");
+});
+
+Deno.test("main.ts imprime la versión con -v sin ejecutar la revisión", async () => {
+  const result = await runMainWithArgs([
+    "-v",
+    "-i",
+    "./factura-inexistente.xls",
+    "-s",
+    "./sistema-inexistente.xlsx",
+  ]);
+
+  assertEquals(result.code, 0);
+  assertEquals(result.stdout, buildVersionMessage());
+  assertEquals(result.stderr, "");
+});
+
+async function runMainWithArgs(args: string[]): Promise<{
+  code: number;
+  stdout: string;
+  stderr: string;
+}> {
+  const command = new Deno.Command(Deno.execPath(), {
+    args: [
+      "run",
+      "--allow-read",
+      "--allow-write",
+      "main.ts",
+      ...args,
+    ],
+    cwd: Deno.cwd(),
+    stdout: "piped",
+    stderr: "piped",
+  });
+
+  const { code, stdout, stderr } = await command.output();
+  const decoder = new TextDecoder();
+
+  return {
+    code,
+    stdout: decoder.decode(stdout).trim(),
+    stderr: decoder.decode(stderr).trim(),
+  };
+}

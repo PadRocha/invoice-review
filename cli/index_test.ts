@@ -5,7 +5,12 @@ import {
   assertThrows,
 } from "@std/assert";
 import { CliError } from "@errors";
-import { buildHelpMessage, parseCliArgs, validateCliOptions } from "@cli";
+import {
+  buildHelpMessage,
+  buildVersionMessage,
+  parseCliArgs,
+  validateCliOptions,
+} from "@cli";
 
 Deno.test("parseCliArgs acepta invocación directa con flags", () => {
   const options = parseCliArgs([
@@ -37,6 +42,22 @@ Deno.test("validateCliOptions exige la factura", () => {
     CliError,
     "Debes indicar la factura con `--invoice <ruta>` o `-i <ruta>`.",
   );
+});
+
+Deno.test("parseCliArgs acepta --version", () => {
+  const options = parseCliArgs(["--version"]);
+
+  assertEquals(options, {
+    command: "version",
+  });
+});
+
+Deno.test("parseCliArgs acepta -v", () => {
+  const options = parseCliArgs(["-v"]);
+
+  assertEquals(options, {
+    command: "version",
+  });
 });
 
 Deno.test("parseCliArgs acepta sensitivity en sintaxis compacta", () => {
@@ -94,6 +115,10 @@ Deno.test("parseCliArgs rechaza argumentos posicionales sueltos", () => {
   );
 });
 
+Deno.test("buildVersionMessage muestra nombre y versión", () => {
+  assertEquals(buildVersionMessage(), "invrev 1.0.0");
+});
+
 Deno.test("buildHelpMessage documenta la invocación directa", () => {
   const help_message = buildHelpMessage();
 
@@ -105,7 +130,8 @@ Deno.test("buildHelpMessage documenta la invocación directa", () => {
     help_message,
     "--sensitivity <n>",
   );
-  assertStringIncludes(help_message, "invrev");
+  assertStringIncludes(help_message, "invrev 1.0.0");
+  assertStringIncludes(help_message, "-v, --version");
   assert(!help_message.includes("main.ts review"));
   assert(!help_message.includes("Compatibilidad"));
   assert(!help_message.includes("deno task review"));

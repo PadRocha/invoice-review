@@ -1,5 +1,10 @@
 import { reviewInvoiceController } from "@controllers";
-import { buildHelpMessage, parseCliArgs, validateCliOptions } from "@cli";
+import {
+  buildHelpMessage,
+  buildVersionMessage,
+  parseCliArgs,
+  validateCliOptions,
+} from "@cli";
 import { CliError } from "@errors";
 import { registerSignalHandlers } from "./signals.ts";
 
@@ -10,7 +15,14 @@ if (import.meta.main) {
     const options = parseCliArgs(Deno.args);
 
     if ("command" in options) {
-      console.log(buildHelpMessage());
+      if (options.command === "help") {
+        console.log(buildHelpMessage());
+      }
+
+      if (options.command === "version") {
+        console.log(buildVersionMessage());
+      }
+
       Deno.exit(0);
     }
 

@@ -25,7 +25,7 @@
     "help": "deno run --allow-read --allow-write main.ts --help",
     "review": "deno run --allow-read --allow-write main.ts",
     "dev": "deno run --watch --allow-read --allow-write main.ts",
-    "test": "deno test --allow-read --allow-write",
+    "test": "deno test --allow-read --allow-write --allow-run",
     "build:linux": "deno compile --target x86_64-unknown-linux-gnu --allow-read --allow-write -o dist/invrev main.ts",
     "build:windows": "deno compile --target x86_64-pc-windows-msvc --allow-read --allow-write -o dist/invrev.exe main.ts"
   },

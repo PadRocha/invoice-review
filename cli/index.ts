@@ -1,19 +1,34 @@
 import { CliError } from "@errors";
+import { buildVersionMessage, CLI_NAME } from "./version.ts";
 import type {
   CliOptions,
   ReviewCliOptions,
   ValidReviewCliOptions,
 } from "./types.ts";
 
+export { buildVersionMessage, CLI_NAME, CLI_VERSION } from "./version.ts";
 export type {
   CliOptions,
   HelpCliOptions,
   ReviewCliOptions,
   ValidReviewCliOptions,
+  VersionCliOptions,
 } from "./types.ts";
 
 export function parseCliArgs(args: string[]): CliOptions {
-  if (args.length === 0 || args.includes("--help") || args.includes("-h")) {
+  if (args.length === 0) {
+    return {
+      command: "help",
+    };
+  }
+
+  if (args.includes("--version") || args.includes("-v")) {
+    return {
+      command: "version",
+    };
+  }
+
+  if (args.includes("--help") || args.includes("-h")) {
     return {
       command: "help",
     };
@@ -115,13 +130,13 @@ export function validateCliOptions(
 
 export function buildHelpMessage(): string {
   return [
-    "invrev",
+    buildVersionMessage(),
     "",
     "Uso:",
-    "  invrev --invoice ./47088.xls --system ./EAG.xlsx",
-    "  invrev --invoice ./47088.xls --system ./EAG.xlsx --system ./ACC.xlsx",
-    "  invrev --invoice ./47088.xls --system ./EAG.xlsx --sensitivity -1",
-    "  invrev -i ./47088.xls -s ./EAG.xlsx -o ./reporte.txt --json ./reporte.json",
+    `  ${CLI_NAME} --invoice ./47088.xls --system ./EAG.xlsx`,
+    `  ${CLI_NAME} --invoice ./47088.xls --system ./EAG.xlsx --system ./ACC.xlsx`,
+    `  ${CLI_NAME} --invoice ./47088.xls --system ./EAG.xlsx --sensitivity -1`,
+    `  ${CLI_NAME} -i ./47088.xls -s ./EAG.xlsx -o ./reporte.txt --json ./reporte.json`,
     "",
     "Desarrollo:",
     "  deno run --allow-read --allow-write main.ts -i ./47088.xls -s ./EAG.xlsx",
@@ -133,6 +148,7 @@ export function buildHelpMessage(): string {
     "  -o, --out <ruta>        Exporta el reporte en texto",
     "      --json <ruta>       Exporta el reporte en JSON",
     "      --sensitivity <n>   Oculta diferencias en el rango (n, 0] si n es negativo",
+    "  -v, --version          Muestra la versión actual",
     "  -h, --help              Muestra esta ayuda",
     "",
     "Reglas fijas:",

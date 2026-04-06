@@ -2,6 +2,10 @@ export interface HelpCliOptions {
   command: "help";
 }
 
+export interface VersionCliOptions {
+  command: "version";
+}
+
 export interface ReviewCliOptions {
   invoice_path?: string;
   system_paths: string[];
@@ -14,4 +18,4 @@ export interface ValidReviewCliOptions extends ReviewCliOptions {
   invoice_path: string;
 }
 
-export type CliOptions = HelpCliOptions | ReviewCliOptions;
+export type CliOptions = HelpCliOptions | VersionCliOptions | ReviewCliOptions;
