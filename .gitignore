@@ -1,0 +1,20 @@
+# Build artifacts
+dist/
+
+# Dependencies
+node_modules/
+
+# Local tool/output scratch space
+.codex
+.codex_tmp/
+coverage/
+*.log
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# OS noise
+.DS_Store
+Thumbs.db
