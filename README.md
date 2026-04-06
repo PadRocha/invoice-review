@@ -45,6 +45,12 @@ Con varios archivos del sistema:
 invrev --invoice ./47088.xls --system ./EAG.xlsx --system ./ACC.xlsx
 ```
 
+Ocultando diferencias pequeñas con `--sensitivity`:
+
+```bash
+invrev --invoice ./47088.xls --system ./EAG.xlsx --sensitivity -1
+```
+
 Exportando reporte en texto y JSON:
 
 ```bash
@@ -71,3 +77,5 @@ invrev --invoice ./47088.xls --system ./EAG.xlsx \
 - Las filas sin clave en la columna requerida se ignoran.
 - Si una fila tiene clave pero no tiene precio válido en la columna requerida,
   la ejecución falla con un error descriptivo.
+- `--sensitivity <n>` oculta diferencias en el rango `(n, 0]` cuando `n` es
+  negativo. Ejemplo: `--sensitivity -1`.
