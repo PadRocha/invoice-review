@@ -1,6 +1,7 @@
 export interface PriceMismatch {
   key: string;
   invoice_price: number;
+  compared_invoice_price: number;
   system_price: number;
   system_file: string;
   system_sheet: string;

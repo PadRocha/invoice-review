@@ -19,6 +19,9 @@ Deno.test("parseCliArgs acepta invocación directa con flags", () => {
     "-s",
     "./EAG.xlsx",
     "--system=./ACC.xlsx,./BSC.xlsx",
+    "-d",
+    "19",
+    "--discount=12.5",
     "--sensitivity",
     "-1",
     "-o",
@@ -30,6 +33,7 @@ Deno.test("parseCliArgs acepta invocación directa con flags", () => {
   assertEquals(options, {
     invoice_path: "./47088.xls",
     system_paths: ["./EAG.xlsx", "./ACC.xlsx", "./BSC.xlsx"],
+    discounts: [19, 12.5],
     sensitivity: -1,
     output_path: "./reporte.txt",
     json_path: "./reporte.json",
@@ -38,7 +42,7 @@ Deno.test("parseCliArgs acepta invocación directa con flags", () => {
 
 Deno.test("validateCliOptions exige la factura", () => {
   assertThrows(
-    () => validateCliOptions({ system_paths: ["./EAG.xlsx"] }),
+    () => validateCliOptions({ system_paths: ["./EAG.xlsx"], discounts: [] }),
     CliError,
     "Debes indicar la factura con `--invoice <ruta>` o `-i <ruta>`.",
   );
@@ -66,14 +70,70 @@ Deno.test("parseCliArgs acepta sensitivity en sintaxis compacta", () => {
     "./47088.xls",
     "--system",
     "./EAG.xlsx",
+    "--discount",
+    "5.5",
     "--sensitivity=-0.5",
   ]);
 
   assertEquals(options, {
     invoice_path: "./47088.xls",
     system_paths: ["./EAG.xlsx"],
+    discounts: [5.5],
     sensitivity: -0.5,
   });
+});
+
+Deno.test("parseCliArgs acepta descuentos repetibles y conserva el orden", () => {
+  const options = parseCliArgs([
+    "--invoice",
+    "./47088.xls",
+    "--system",
+    "./EAG.xlsx",
+    "-d",
+    "19",
+    "-d",
+    "12",
+    "--discount",
+    "5.5",
+  ]);
+
+  assertEquals(options, {
+    invoice_path: "./47088.xls",
+    system_paths: ["./EAG.xlsx"],
+    discounts: [19, 12, 5.5],
+  });
+});
+
+Deno.test("parseCliArgs rechaza descuentos no numéricos", () => {
+  assertThrows(
+    () =>
+      parseCliArgs([
+        "--invoice",
+        "./47088.xls",
+        "--system",
+        "./EAG.xlsx",
+        "--discount",
+        "abc",
+      ]),
+    CliError,
+    "`--discount` requiere un porcentaje numérico mayor a 0 y menor a 100, por ejemplo `--discount 19` o `--discount 5.5`.",
+  );
+});
+
+Deno.test("parseCliArgs rechaza descuentos fuera de rango razonable", () => {
+  assertThrows(
+    () =>
+      parseCliArgs([
+        "--invoice",
+        "./47088.xls",
+        "--system",
+        "./EAG.xlsx",
+        "--discount",
+        "0",
+      ]),
+    CliError,
+    "`--discount` requiere un porcentaje numérico mayor a 0 y menor a 100, por ejemplo `--discount 19` o `--discount 5.5`.",
+  );
 });
 
 Deno.test("parseCliArgs rechaza sensitivity no negativa", () => {
@@ -116,7 +176,7 @@ Deno.test("parseCliArgs rechaza argumentos posicionales sueltos", () => {
 });
 
 Deno.test("buildVersionMessage muestra nombre y versión", () => {
-  assertEquals(buildVersionMessage(), "invrev 1.0.0");
+  assertEquals(buildVersionMessage(), "invrev 0.2.0");
 });
 
 Deno.test("buildHelpMessage documenta la invocación directa", () => {
@@ -130,8 +190,10 @@ Deno.test("buildHelpMessage documenta la invocación directa", () => {
     help_message,
     "--sensitivity <n>",
   );
-  assertStringIncludes(help_message, "invrev 1.0.0");
+  assertStringIncludes(help_message, "--discount <n>");
+  assertStringIncludes(help_message, buildVersionMessage());
   assertStringIncludes(help_message, "-v, --version");
+  assertStringIncludes(help_message, "precio_usado / precio_sistema");
   assert(!help_message.includes("main.ts review"));
   assert(!help_message.includes("Compatibilidad"));
   assert(!help_message.includes("deno task review"));

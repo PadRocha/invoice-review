@@ -1,9 +1,10 @@
 import { basename } from "@std/path";
 import type { ReviewReport } from "@interfaces/review_report.interface.ts";
-import { formatNumber } from "@utils/number.ts";
+import { formatNumber, roundNumber } from "@utils/number.ts";
 
 export function renderTextReport(report: ReviewReport): string {
   const lines: string[] = [];
+  const has_discounts = report.discounts.length > 0;
 
   lines.push(`Factura: ${basename(report.invoice_file)}`);
   lines.push(
@@ -24,9 +25,24 @@ export function renderTextReport(report: ReviewReport): string {
     ) {
       const mismatch = report.price_mismatches[mismatch_index];
       lines.push(`- ${mismatch.key}`);
-      lines.push(
-        `  - precio en factura: ${formatNumber(mismatch.invoice_price)}`,
-      );
+
+      if (has_discounts) {
+        lines.push(
+          `  - precio original en factura: ${
+            formatNumber(mismatch.invoice_price)
+          }`,
+        );
+        lines.push(
+          `  - precio con descuentos aplicados: ${
+            formatNumber(roundNumber(mismatch.compared_invoice_price, 2))
+          }`,
+        );
+      } else {
+        lines.push(
+          `  - precio en factura: ${formatNumber(mismatch.invoice_price)}`,
+        );
+      }
+
       lines.push(
         `  - precio en sistema: ${formatNumber(mismatch.system_price)}`,
       );

@@ -1,6 +1,7 @@
 import type { SystemRow } from "@interfaces/system_row.interface.ts";
 
 export interface ReviewInvoiceConfig {
+  discounts?: number[];
   sensitivity?: number;
 }
 

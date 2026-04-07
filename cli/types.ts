@@ -9,6 +9,7 @@ export interface VersionCliOptions {
 export interface ReviewCliOptions {
   invoice_path?: string;
   system_paths: string[];
+  discounts: number[];
   output_path?: string;
   json_path?: string;
   sensitivity?: number;

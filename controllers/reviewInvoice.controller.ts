@@ -36,6 +36,7 @@ export async function reviewInvoiceController(
     system_paths,
     system_rows,
     {
+      discounts: options.discounts,
       sensitivity: options.sensitivity,
     },
   );

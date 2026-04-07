@@ -36,6 +36,7 @@ export function parseCliArgs(args: string[]): CliOptions {
 
   const options: ReviewCliOptions = {
     system_paths: [],
+    discounts: [],
   };
 
   for (let index = 0; index < args.length; index += 1) {
@@ -75,6 +76,12 @@ export function parseCliArgs(args: string[]): CliOptions {
         index += 1;
         break;
       }
+      case "--discount":
+      case "-d": {
+        options.discounts.push(parseDiscountValue(args[index + 1]));
+        index += 1;
+        break;
+      }
       default: {
         if (current_arg.startsWith("--system=")) {
           const value = current_arg.slice("--system=".length);
@@ -95,6 +102,18 @@ export function parseCliArgs(args: string[]): CliOptions {
         if (current_arg.startsWith("--sensitivity=")) {
           const value = current_arg.slice("--sensitivity=".length);
           options.sensitivity = parseSensitivityValue(value);
+          break;
+        }
+
+        if (current_arg.startsWith("--discount=")) {
+          const value = current_arg.slice("--discount=".length);
+          options.discounts.push(parseDiscountValue(value));
+          break;
+        }
+
+        if (current_arg.startsWith("-d=")) {
+          const value = current_arg.slice(3);
+          options.discounts.push(parseDiscountValue(value));
           break;
         }
 
@@ -135,6 +154,7 @@ export function buildHelpMessage(): string {
     "Uso:",
     `  ${CLI_NAME} --invoice ./47088.xls --system ./EAG.xlsx`,
     `  ${CLI_NAME} --invoice ./47088.xls --system ./EAG.xlsx --system ./ACC.xlsx`,
+    `  ${CLI_NAME} --invoice ./47088.xls --system ./EAG.xlsx --discount 19 --discount 12`,
     `  ${CLI_NAME} --invoice ./47088.xls --system ./EAG.xlsx --sensitivity -1`,
     `  ${CLI_NAME} -i ./47088.xls -s ./EAG.xlsx -o ./reporte.txt --json ./reporte.json`,
     "",
@@ -145,6 +165,7 @@ export function buildHelpMessage(): string {
     "  -i, --invoice <ruta>    Archivo principal de factura",
     "  -s, --system <ruta>     Archivo del sistema. Puede repetirse",
     "      --system=a,b,c      Variante compacta separada por comas",
+    "  -d, --discount <n>      Descuento porcentual. Puede repetirse",
     "  -o, --out <ruta>        Exporta el reporte en texto",
     "      --json <ruta>       Exporta el reporte en JSON",
     "      --sensitivity <n>   Oculta diferencias en el rango (n, 0] si n es negativo",
@@ -154,7 +175,7 @@ export function buildHelpMessage(): string {
     "Reglas fijas:",
     "  - Factura: clave en columna C, precio en columna E",
     "  - Sistema: clave en columna A, precio en columna E",
-    "  - Fórmula de variación: (precio_factura / precio_sistema) * 100 - 100",
+    "  - Fórmula de variación: (precio_usado / precio_sistema) * 100 - 100",
   ].join("\n");
 }
 
@@ -175,4 +196,22 @@ function parseSensitivityValue(raw_value: string | undefined): number {
   }
 
   return sensitivity;
+}
+
+function parseDiscountValue(raw_value: string | undefined): number {
+  if (raw_value === undefined || raw_value.trim() === "") {
+    throw new CliError(
+      "`--discount` requiere un porcentaje numérico mayor a 0 y menor a 100, por ejemplo `--discount 19` o `--discount 5.5`.",
+    );
+  }
+
+  const discount = Number(raw_value);
+
+  if (!Number.isFinite(discount) || discount <= 0 || discount >= 100) {
+    throw new CliError(
+      "`--discount` requiere un porcentaje numérico mayor a 0 y menor a 100, por ejemplo `--discount 19` o `--discount 5.5`.",
+    );
+  }
+
+  return discount;
 }

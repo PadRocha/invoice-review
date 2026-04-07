@@ -11,6 +11,7 @@ export interface ReviewSummary {
 export interface ReviewReport {
   invoice_file: string;
   system_files: string[];
+  discounts: number[];
   price_mismatches: PriceMismatch[];
   missing_keys: string[];
   multiple_matches: MultipleMatch[];

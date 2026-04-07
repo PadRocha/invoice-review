@@ -5,8 +5,11 @@ import type { ReviewReport } from "@interfaces/review_report.interface.ts";
 import type { SystemRow } from "@interfaces/system_row.interface.ts";
 import { buildReviewReport } from "@models";
 import { calculatePercentageVariation } from "@utils/percentage.ts";
+import { calculateDiscountedPrice } from "./discounts.ts";
 import type { ReviewInvoiceConfig } from "./types.ts";
 import { resolveSystemMatch } from "./resolve_match.ts";
+
+const PERCENTAGE_FORMULA = "precio_usado / precio_sistema * 100 - 100";
 
 export function reviewInvoice(
   invoice_file: string,
@@ -16,6 +19,7 @@ export function reviewInvoice(
   config: ReviewInvoiceConfig = {},
 ): ReviewReport {
   const system_rows_by_file = groupRowsByFile(system_rows);
+  const discounts = config.discounts ?? [];
   const price_mismatches: PriceMismatch[] = [];
   const missing_keys: string[] = [];
   const multiple_matches: MultipleMatch[] = [];
@@ -44,12 +48,17 @@ export function reviewInvoice(
         break;
       }
       case "found": {
-        if (invoice_row.price === resolution.row.price) {
+        const discounted_price = calculateDiscountedPrice(
+          invoice_row.price,
+          discounts,
+        );
+
+        if (discounted_price.adjusted_price === resolution.row.price) {
           break;
         }
 
         const percentage_result = calculatePercentageVariation(
-          invoice_row.price,
+          discounted_price.adjusted_price,
           resolution.row.price,
         );
 
@@ -59,13 +68,14 @@ export function reviewInvoice(
 
         price_mismatches.push({
           key: invoice_row.key,
-          invoice_price: invoice_row.price,
+          invoice_price: discounted_price.original_price,
+          compared_invoice_price: discounted_price.adjusted_price,
           system_price: resolution.row.price,
           system_file: resolution.row.source_file,
           system_sheet: resolution.row.source_sheet,
           invoice_row_number: invoice_row.row_number,
           system_row_number: resolution.row.row_number,
-          percentage_formula: "precio_factura / precio_sistema * 100 - 100",
+          percentage_formula: PERCENTAGE_FORMULA,
           percentage_result,
         });
         break;
@@ -76,6 +86,7 @@ export function reviewInvoice(
   return buildReviewReport(
     invoice_file,
     system_files,
+    discounts,
     invoice_rows.length,
     price_mismatches,
     missing_keys,

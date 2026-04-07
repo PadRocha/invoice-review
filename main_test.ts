@@ -31,6 +31,7 @@ Deno.test("reviewInvoice reporta precio incorrecto, faltante y múltiple", () =>
   assertEquals(report.summary.total_price_mismatches, 1);
   assertEquals(report.summary.total_missing_keys, 1);
   assertEquals(report.summary.total_multiple_matches, 1);
+  assertEquals(report.discounts, []);
   assertEquals(report.price_mismatches[0].key, "A");
   assertEquals(report.missing_keys[0], "B");
   assertEquals(report.multiple_matches[0].key, "D");
@@ -51,7 +52,47 @@ Deno.test("reviewInvoice mantiene el comportamiento actual sin sensitivity", () 
   assertEquals(report.summary.total_rows_reviewed, 1);
   assertEquals(report.summary.total_price_mismatches, 1);
   assertEquals(report.price_mismatches[0].key, "A");
+  assertEquals(report.price_mismatches[0].invoice_price, 100.004);
+  assertEquals(report.price_mismatches[0].compared_invoice_price, 100.004);
   assertEquals(report.price_mismatches[0].percentage_result, 0);
+});
+
+Deno.test("reviewInvoice usa el precio ajustado cuando hay un descuento", () => {
+  const report = reviewInvoice(
+    "/tmp/47088.xls",
+    [
+      buildInvoiceRow(2, "A", 100, "/tmp/47088.xls"),
+    ],
+    ["/tmp/EAG.xlsx"],
+    [
+      buildSystemRow(8, "A", 80, "/tmp/EAG.xlsx", "Hoja1", 0),
+    ],
+    {
+      discounts: [20],
+    },
+  );
+
+  assertEquals(report.discounts, [20]);
+  assertEquals(report.summary.total_price_mismatches, 0);
+});
+
+Deno.test("reviewInvoice usa descuentos sucesivos en la comparación", () => {
+  const report = reviewInvoice(
+    "/tmp/47088.xls",
+    [
+      buildInvoiceRow(2, "A", 530, "/tmp/47088.xls"),
+    ],
+    ["/tmp/EAG.xlsx"],
+    [
+      buildSystemRow(8, "A", 377.784, "/tmp/EAG.xlsx", "Hoja1", 0),
+    ],
+    {
+      discounts: [19, 12],
+    },
+  );
+
+  assertEquals(report.discounts, [19, 12]);
+  assertEquals(report.summary.total_price_mismatches, 0);
 });
 
 Deno.test("reviewInvoice oculta diferencias en (-1, 0] con sensitivity -1", () => {
@@ -97,6 +138,32 @@ Deno.test("reviewInvoice oculta diferencias en (-1, 0] con sensitivity -1", () =
   );
   assertEquals(report.missing_keys, ["G"]);
   assertEquals(report.multiple_matches[0].key, "H");
+});
+
+Deno.test("reviewInvoice aplica sensitivity sobre el precio ajustado", () => {
+  const report = reviewInvoice(
+    "/tmp/47088.xls",
+    [
+      buildInvoiceRow(2, "A", 100, "/tmp/47088.xls"),
+      buildInvoiceRow(3, "B", 100, "/tmp/47088.xls"),
+    ],
+    ["/tmp/EAG.xlsx"],
+    [
+      buildSystemRow(10, "A", 95, "/tmp/EAG.xlsx", "Hoja1", 0),
+      buildSystemRow(11, "B", 100, "/tmp/EAG.xlsx", "Hoja1", 0),
+    ],
+    {
+      discounts: [5.5],
+      sensitivity: -1,
+    },
+  );
+
+  assertEquals(report.summary.total_rows_reviewed, 2);
+  assertEquals(report.summary.total_price_mismatches, 1);
+  assertEquals(report.price_mismatches[0].key, "B");
+  assertEquals(report.price_mismatches[0].invoice_price, 100);
+  assertEquals(report.price_mismatches[0].compared_invoice_price, 94.5);
+  assertEquals(report.price_mismatches[0].percentage_result, -5.5);
 });
 
 Deno.test("main.ts imprime la versión con --version sin ejecutar la revisión", async () => {

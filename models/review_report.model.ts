@@ -5,6 +5,7 @@ import type { ReviewReport } from "@interfaces/review_report.interface.ts";
 export function buildReviewReport(
   invoice_file: string,
   system_files: string[],
+  discounts: number[],
   total_rows_reviewed: number,
   price_mismatches: PriceMismatch[],
   missing_keys: string[],
@@ -13,6 +14,7 @@ export function buildReviewReport(
   return {
     invoice_file,
     system_files,
+    discounts,
     price_mismatches,
     missing_keys,
     multiple_matches,
