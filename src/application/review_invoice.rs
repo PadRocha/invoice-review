@@ -31,8 +31,8 @@ pub fn run(request: ReviewInvoiceRequest) -> Result<String, AppError> {
 
     let invoice_rows = load_invoice_rows(&invoice_path)?;
     let mut system_rows = Vec::new();
-    for (index, system_path) in system_paths.iter().enumerate() {
-        system_rows.extend(load_system_rows(system_path, index)?);
+    for system_path in &system_paths {
+        system_rows.extend(load_system_rows(system_path)?);
     }
 
     let report = review_invoice(

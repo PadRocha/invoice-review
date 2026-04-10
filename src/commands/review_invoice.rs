@@ -3,26 +3,44 @@ use crate::cli::ReviewCliOptions;
 use crate::shared::{AppError, CliError};
 
 pub fn execute(options: ReviewCliOptions) -> Result<String, AppError> {
-    review_invoice::run(validate(options)?)
+    review_invoice::run(options.try_into()?)
 }
 
-fn validate(options: ReviewCliOptions) -> Result<ReviewInvoiceRequest, CliError> {
-    let Some(invoice_path) = options.invoice_path else {
-        return Err(CliError::MissingInvoice);
-    };
+impl TryFrom<ReviewCliOptions> for ReviewInvoiceRequest {
+    type Error = CliError;
 
-    if options.system_paths.is_empty() {
-        return Err(CliError::MissingSystemFile);
+    fn try_from(options: ReviewCliOptions) -> Result<Self, Self::Error> {
+        let ReviewCliOptions {
+            invoice_path,
+            system_paths,
+            discounts,
+            output_path,
+            json_path,
+            sensitivity,
+        } = options;
+
+        let Some(invoice_path) = invoice_path else {
+            return Err(CliError::MissingInvoice);
+        };
+
+        if system_paths.is_empty() {
+            return Err(CliError::MissingSystemFile);
+        }
+
+        Ok(Self {
+            invoice_path,
+            system_paths,
+            discounts,
+            output_path,
+            json_path,
+            sensitivity,
+        })
     }
+}
 
-    Ok(ReviewInvoiceRequest {
-        invoice_path,
-        system_paths: options.system_paths,
-        discounts: options.discounts,
-        output_path: options.output_path,
-        json_path: options.json_path,
-        sensitivity: options.sensitivity,
-    })
+#[cfg(test)]
+fn validate(options: ReviewCliOptions) -> Result<ReviewInvoiceRequest, CliError> {
+    ReviewInvoiceRequest::try_from(options)
 }
 
 #[cfg(test)]

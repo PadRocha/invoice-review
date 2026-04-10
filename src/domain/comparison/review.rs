@@ -90,12 +90,12 @@ pub fn review_invoice(
     }
 }
 
-fn group_rows_by_file(system_rows: &[SystemRow]) -> HashMap<PathBuf, Vec<&SystemRow>> {
+fn group_rows_by_file(system_rows: &[SystemRow]) -> HashMap<&PathBuf, Vec<&SystemRow>> {
     let mut grouped_rows = HashMap::new();
 
     for system_row in system_rows {
         grouped_rows
-            .entry(system_row.source_file.clone())
+            .entry(&system_row.source_file)
             .or_insert_with(Vec::new)
             .push(system_row);
     }
@@ -145,7 +145,6 @@ mod tests {
             row_number: sheet_row(row_number),
             key: key(key_value),
             price: price(price_value),
-            source_file: PathBuf::from("/tmp/47088.xls"),
         }
     }
 
@@ -156,7 +155,6 @@ mod tests {
             price: price(price_value),
             source_file: PathBuf::from(file),
             source_sheet: "Hoja1".to_string(),
-            priority_index: 0,
         }
     }
 

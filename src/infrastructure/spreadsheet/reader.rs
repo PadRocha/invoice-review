@@ -27,15 +27,11 @@ pub fn load_invoice_rows(path: &Path) -> Result<Vec<InvoiceRow>, SpreadsheetErro
         SheetReadOptions {
             key_column: INVOICE_KEY_COLUMN,
             price_column: INVOICE_PRICE_COLUMN,
-            priority_index: 0,
         },
     )
 }
 
-pub fn load_system_rows(
-    path: &Path,
-    priority_index: usize,
-) -> Result<Vec<SystemRow>, SpreadsheetError> {
+pub fn load_system_rows(path: &Path) -> Result<Vec<SystemRow>, SpreadsheetError> {
     let workbook = read_workbook(path)?;
     read_system_rows(
         workbook,
@@ -43,7 +39,6 @@ pub fn load_system_rows(
         SheetReadOptions {
             key_column: SYSTEM_KEY_COLUMN,
             price_column: SYSTEM_PRICE_COLUMN,
-            priority_index,
         },
     )
 }
@@ -60,7 +55,6 @@ fn read_invoice_rows(
             row_number: entry.row_number,
             key: entry.key,
             price: entry.price,
-            source_file: source_file.to_path_buf(),
         })
         .collect())
 }
@@ -79,7 +73,6 @@ fn read_system_rows(
             price: entry.price,
             source_file: source_file.to_path_buf(),
             source_sheet: entry.sheet_name,
-            priority_index: options.priority_index,
         })
         .collect())
 }

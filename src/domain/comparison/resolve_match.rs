@@ -5,7 +5,7 @@ use super::{ItemKey, MatchResolution, SystemRow};
 
 pub fn resolve_system_match<'a>(
     key: &ItemKey,
-    system_rows_by_file: &HashMap<PathBuf, Vec<&'a SystemRow>>,
+    system_rows_by_file: &HashMap<&'a PathBuf, Vec<&'a SystemRow>>,
     system_priority_files: &[PathBuf],
 ) -> MatchResolution<'a> {
     for system_file in system_priority_files {

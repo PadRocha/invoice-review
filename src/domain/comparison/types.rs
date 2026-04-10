@@ -123,7 +123,6 @@ pub struct InvoiceRow {
     pub row_number: SpreadsheetRowNumber,
     pub key: ItemKey,
     pub price: Price,
-    pub source_file: PathBuf,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -133,7 +132,6 @@ pub struct SystemRow {
     pub price: Price,
     pub source_file: PathBuf,
     pub source_sheet: String,
-    pub priority_index: usize,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

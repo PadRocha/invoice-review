@@ -39,7 +39,6 @@ fn review_invoice_keeps_original_behavior_without_sensitivity() {
         row_number: row_number(2),
         key: key("A"),
         price: price(100.004),
-        source_file: PathBuf::from("/tmp/47088.xls"),
     }];
     let system_files = [PathBuf::from("/tmp/EAG.xlsx")];
     let system_rows = [SystemRow {
@@ -48,7 +47,6 @@ fn review_invoice_keeps_original_behavior_without_sensitivity() {
         price: price(100.0),
         source_file: PathBuf::from("/tmp/EAG.xlsx"),
         source_sheet: "Hoja1".to_string(),
-        priority_index: 0,
     }];
 
     let report = review_invoice(
@@ -72,7 +70,6 @@ fn review_report_serialization_keeps_flat_json_shape() {
         row_number: row_number(2),
         key: key("A"),
         price: price(100.0),
-        source_file: PathBuf::from("/tmp/47088.xls"),
     }];
     let system_files = [PathBuf::from("/tmp/EAG.xlsx")];
     let system_rows = [SystemRow {
@@ -81,7 +78,6 @@ fn review_report_serialization_keeps_flat_json_shape() {
         price: price(95.0),
         source_file: PathBuf::from("/tmp/EAG.xlsx"),
         source_sheet: "Hoja1".to_string(),
-        priority_index: 0,
     }];
 
     let report = review_invoice(

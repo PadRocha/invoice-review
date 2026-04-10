@@ -36,9 +36,8 @@ pub const INVOICE_PRICE_COLUMN: SpreadsheetColumn = SpreadsheetColumn::E;
 pub const SYSTEM_KEY_COLUMN: SpreadsheetColumn = SpreadsheetColumn::A;
 pub const SYSTEM_PRICE_COLUMN: SpreadsheetColumn = SpreadsheetColumn::E;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SheetReadOptions {
     pub key_column: SpreadsheetColumn,
     pub price_column: SpreadsheetColumn,
-    pub priority_index: usize,
 }
