@@ -1,0 +1,17 @@
+[package]
+name = "invrev"
+version = "0.2.0"
+edition = "2021"
+description = "CLI para revisar una factura contra archivos de sistema"
+license = "MIT"
+
+[dependencies]
+calamine = "0.34.0"
+ctrlc = "3.4"
+path-clean = "1.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2.0.18"
+
+[dev-dependencies]
+tempfile = "3"
