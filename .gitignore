@@ -1,1 +1,32 @@
+# Build artifacts
 /target
+
+# Coverage and profiling artifacts
+coverage/
+lcov.info
+*.profraw
+*.profdata
+
+# Local tool/output scratch space
+.codex
+.codex_tmp/
+*.log
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.sample
+/.direnv/
+.envrc
+
+# Editor/IDE files
+/.vscode/
+/.idea/
+/.zed/
+*.iml
+*.swp
+*.swo
+
+# OS noise
+.DS_Store
